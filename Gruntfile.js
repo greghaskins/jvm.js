@@ -44,7 +44,8 @@ module.exports = function (grunt) {
     },
     karma: {
       unit: {
-        configFile: 'karma.conf.js'
+        configFile: 'karma.conf.js',
+        singleRun: true,
       }
     },
     watch: {
@@ -54,7 +55,7 @@ module.exports = function (grunt) {
       },
       lib_test: {
         files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test', 'karma:unit:run']
+        tasks: ['jshint:lib_test', 'karma']
       }
     }
   });
