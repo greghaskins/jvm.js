@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+
+var filename = process.argv[2];
+
+fs.readFile(filename, function(err, data){
+  if (err) {
+    throw err;
+  }
+
+  var javaScript = convertToJavaScriptArray(data)
+
+  console.log(javaScript);
+});
+
+function convertToJavaScriptArray(data){
+  var hexStrings = Array.prototype.map.call(data, byteToHex);
+
+  var lines = ['['];
+  while (hexStrings.length){
+    var line = hexStrings.splice(0, 8).join(', ');
+    lines.push(line);
+  }
+  lines.push(']');
+  return lines.join(',\n');
+}
+
+function byteToHex(byte){
+  var zeroPaddedHex =  ("00" + byte.toString(16)).substr(-2);
+  return "0x" + zeroPaddedHex.toUpperCase();
+}
