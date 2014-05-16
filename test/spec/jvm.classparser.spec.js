@@ -42,6 +42,10 @@ describe('class parser', function(){
 
       describe('constant pool', function(){
 
+        it('should have the correct magic header', function(){
+          expect(klass.magic).toBe(0xCAFEBABE |0);
+        });
+
         it('should have the correct major_version', function(){
           expect(klass.major_version).toBe(51);
         });
