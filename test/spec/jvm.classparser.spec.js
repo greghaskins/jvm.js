@@ -38,93 +38,96 @@ describe('class parser', function(){
         0x00, 0x09 ]).buffer;
 
         klass = classParser.parse(emptyClassFile);
+      });
+
+      describe('constant pool', function(){
+
+        it('should have the correct major_version', function(){
+          expect(klass.major_version).toBe(51);
+        });
+
+        it('should have twelve items in the constant pool array', function(){
+          var count_one_more_than_pool_size = 12 + 1;
+          expect(klass.constant_pool_count).toBe(count_one_more_than_pool_size);
+        });
+
+        it('should have the <init> methodref constant first', function(){
+          var CONSTANT_Methodref = 10;
+          var const_info = klass.constant_pool[1];
+          expect(const_info.tag).toBe(CONSTANT_Methodref);
+          expect(const_info.class_index).toBe(3);
+          expect(const_info.name_and_type_index).toBe(10);
+        });
+
+        it('should have its own class reference second', function(){
+          var CONSTANT_Class = 7;
+          var const_info = klass.constant_pool[2];
+          expect(const_info.tag).toBe(CONSTANT_Class);
+          expect(const_info.name_index).toBe(11);
+        });
+
+        it('should have its super class reference third', function(){
+          var CONSTANT_Class = 7;
+          var const_info = klass.constant_pool[3];
+          expect(const_info.tag).toBe(CONSTANT_Class);
+          expect(const_info.name_index).toBe(12);
+        });
+
+        it('should have the <init> method name fourth', function(){
+          checkUtf8Constant(4, '<init>');
+        });
+
+        it('should have the <init> method signature fifth', function(){
+          checkUtf8Constant(5, '()V');
+        });
+
+        it('should have the Code constant sixth', function(){
+          checkUtf8Constant(6, 'Code');
+        });
+
+        it('should have the LineNumberTable constant seventh', function(){
+          checkUtf8Constant(7, 'LineNumberTable');
+        });
+
+        it('should have the SourceFile constant eighth', function(){
+          checkUtf8Constant(8, 'SourceFile');
+        });
+
+        it('should have the source filename ninth', function(){
+          checkUtf8Constant(9, 'EmptyClass.java');
+        });
+
+        it('should have the <init> name and type tenth', function(){
+          var CONSTANT_NameAndType = 12;
+          var const_info = klass.constant_pool[10];
+          expect(const_info.tag).toBe(CONSTANT_NameAndType);
+          expect(const_info.name_index).toBe(4);
+          expect(const_info.descriptor_index).toBe(5);
+        });
+
+        it('should have the class name eleventh', function(){
+          checkUtf8Constant(11, 'EmptyClass');
+        });
+
+        it('should have the super class name twelth', function(){
+          checkUtf8Constant(12, 'java/lang/Object');
+        });
+
+        function checkUtf8Constant(index, expectedValue){
+          var CONSTANT_Utf8 = 1;
+          var const_info = klass.constant_pool[index];
+          expect(const_info.tag).toBe(CONSTANT_Utf8);
+          expect(const_info.length).toBe(expectedValue.length);
+          var text = simpleBytesToString(const_info.bytes);
+          expect(text).toBe(expectedValue);
+        }
+      });
     });
 
-    it('should have the correct major_version', function(){
-      expect(klass.major_version).toBe(51);
-    });
-
-    it('should have twelve items in the constant pool array', function(){
-      var count_one_more_than_pool_size = 12 + 1;
-      expect(klass.constant_pool_count).toBe(count_one_more_than_pool_size);
-    });
-
-    it('should have the <init> methodref constant first', function(){
-      var CONSTANT_Methodref = 10;
-      var const_info = klass.constant_pool[1];
-      expect(const_info.tag).toBe(CONSTANT_Methodref);
-      expect(const_info.class_index).toBe(3);
-      expect(const_info.name_and_type_index).toBe(10);
-    });
-
-    it('should have its own class reference second', function(){
-      var CONSTANT_Class = 7;
-      var const_info = klass.constant_pool[2];
-      expect(const_info.tag).toBe(CONSTANT_Class);
-      expect(const_info.name_index).toBe(11);
-    });
-
-    it('should have its super class reference third', function(){
-      var CONSTANT_Class = 7;
-      var const_info = klass.constant_pool[3];
-      expect(const_info.tag).toBe(CONSTANT_Class);
-      expect(const_info.name_index).toBe(12);
-    });
-
-    it('should have the <init> method name fourth', function(){
-      checkUtf8Constant(4, '<init>');
-    });
-
-    it('should have the <init> method signature fifth', function(){
-      checkUtf8Constant(5, '()V');
-    });
-
-    it('should have the Code constant sixth', function(){
-      checkUtf8Constant(6, 'Code');
-    });
-
-    it('should have the LineNumberTable constant seventh', function(){
-      checkUtf8Constant(7, 'LineNumberTable');
-    });
-
-    it('should have the SourceFile constant eighth', function(){
-      checkUtf8Constant(8, 'SourceFile');
-    });
-
-    it('should have the source filename ninth', function(){
-      checkUtf8Constant(9, 'EmptyClass.java');
-    });
-
-    it('should have the <init> name and type tenth', function(){
-      var CONSTANT_NameAndType = 12;
-      var const_info = klass.constant_pool[10];
-      expect(const_info.tag).toBe(CONSTANT_NameAndType);
-      expect(const_info.name_index).toBe(4);
-      expect(const_info.descriptor_index).toBe(5);
-    });
-
-    it('should have the class name eleventh', function(){
-      checkUtf8Constant(11, 'EmptyClass');
-    });
-
-    it('should have the super class name twelth', function(){
-      checkUtf8Constant(12, 'java/lang/Object');
-    });
-
-    function checkUtf8Constant(index, expectedValue){
-      var CONSTANT_Utf8 = 1;
-      var const_info = klass.constant_pool[index];
-      expect(const_info.tag).toBe(CONSTANT_Utf8);
-      expect(const_info.length).toBe(expectedValue.length);
-      var text = simpleBytesToString(const_info.bytes);
-      expect(text).toBe(expectedValue);
+    function simpleBytesToString(uint8Array){
+      var identity = function(b){ return b; };
+      var bytes = Array.prototype.map.call(uint8Array, identity);
+      return String.fromCharCode.apply(null, bytes);
     }
-  });
-
-  function simpleBytesToString(uint8Array){
-    var identity = function(b){ return b; };
-    var bytes = Array.prototype.map.call(uint8Array, identity);
-    return String.fromCharCode.apply(null, bytes);
-  }
 
 });
