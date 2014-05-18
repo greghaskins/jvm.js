@@ -117,16 +117,67 @@ describe('class parser', function(){
           checkUtf8Constant(12, 'java/lang/Object');
         });
 
-        function checkUtf8Constant(index, expectedValue){
-          var CONSTANT_Utf8 = 1;
-          var const_info = klass.constant_pool[index];
-          expect(const_info.tag).toBe(CONSTANT_Utf8);
-          expect(const_info.length).toBe(expectedValue.length);
-          var text = simpleBytesToString(const_info.bytes);
-          expect(text).toBe(expectedValue);
-        }
       });
+
+      it('should only have ACC_SUPER access flag set', function(){
+        var ACC_SUPER = 0x0020;
+        expect(klass.access_flags).toBe(ACC_SUPER);
+      });
+
+      it('should have a reference to its own class constant', function(){
+        var thisClass = klass.this_class;
+        var className = getNameOfClassConstant(klass.constant_pool, thisClass);
+        expect(className).toBe('EmptyClass');
+      });
+
+      it('should have a reference to its super class constant', function(){
+        var superClass = klass.super_class;
+        var superClassName = getNameOfClassConstant(klass.constant_pool,
+                                                    superClass);
+        expect(superClassName).toBe('java/lang/Object');
+      });
+
+      it('should not have any interfaces', function(){
+        expect(klass.interfaces_count).toBe(0);
+        expect(klass.interfaces.length).toBe(0);
+      });
+
+      it('should not have any fields', function(){
+        expect(klass.fields_count).toBe(0);
+        expect(klass.fields.length).toBe(0);
+      });
+
+      it('should only have the <init> method', function(){
+        expect(klass.methods_count).toBe(1);
+        expect(klass.methods.length).toBe(1);
+        var methodInfo = klass.methods[0];
+
+        expect(methodInfo.access_flags).toBe(0);
+
+        checkUtf8Constant(methodInfo.name_index, '<init>');
+        checkUtf8Constant(methodInfo.descriptor_index, '()V');
+
+        expect(methodInfo.attributes_count).toBe(1);
+        var attribute = methodInfo.attributes[0];
+        checkUtf8Constant(attribute.attribute_name_index, 'Code');
+      });
+
+      function checkUtf8Constant(index, expectedValue){
+        var CONSTANT_Utf8 = 1;
+        var const_info = klass.constant_pool[index];
+        expect(const_info.tag).toBe(CONSTANT_Utf8);
+        expect(const_info.length).toBe(expectedValue.length);
+        var text = simpleBytesToString(const_info.bytes);
+        expect(text).toBe(expectedValue);
+      }
+
     });
+
+    function getNameOfClassConstant(constantPool, index){
+      var classConstant = constantPool[index];
+      var nameConstant = constantPool[classConstant.name_index];
+      return simpleBytesToString(nameConstant.bytes);
+    }
 
     function simpleBytesToString(uint8Array){
       var identity = function(b){ return b; };
