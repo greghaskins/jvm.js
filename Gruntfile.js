@@ -1,5 +1,8 @@
 module.exports = function (grunt) {
   'use strict';
+
+  var testJavaFiles = ['test/**/*.java'];
+
   // Project configuration
   grunt.initConfig({
     // Metadata
@@ -48,14 +51,33 @@ module.exports = function (grunt) {
         singleRun: true,
       }
     },
+    run_java: {
+      options: {
+        stdout: true,
+        stderr: true,
+        stdin: false,
+        failOnError: true
+      },
+      compile_test_classes: {
+        command: "javac",
+        javaOptions: {
+          "classpath": []
+        },
+        sourceFiles: []
+      }
+    },
     watch: {
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>',
         tasks: ['jshint:gruntfile']
       },
       lib_test: {
-        files: '<%= jshint.lib_test.src %>',
+        files: ['<%= jshint.lib_test.src %>'],
         tasks: ['jshint:lib_test', 'karma']
+      },
+      test_java: {
+        files: testJavaFiles,
+        tasks: ['test_compile', 'karma']
       }
     }
   });
@@ -65,7 +87,16 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-run-java');
+
+  // Find *.java files used for tests
+  grunt.registerTask('gather_test_java', function() {
+    var files = grunt.file.expand(testJavaFiles);
+    grunt.config(['run_java', 'compile_test_classes', 'sourceFiles'], files);
+  });
 
   // Default task
-  grunt.registerTask('default', ['jshint', 'karma']);
+  grunt.registerTask('test_compile',
+    ['gather_test_java', 'run_java:compile_test_classes']);
+  grunt.registerTask('default', ['jshint', 'test_compile', 'karma']);
 };
