@@ -1,7 +1,19 @@
 {
-  "name": "jvm-js",
+  "name": "jvmjs",
   "version": "0.0.0",
+  "description": "A toy, experimental JVM to run in your browser",
   "dependencies": {},
+  "homepage": "https://github.com/greghaskins/jvm.js",
+  "license": "MIT",
+  "author":
+    { "name" : "Gregory Haskins"
+    ,  "email" : "greg@greghaskins.com"
+    ,  "url" : "http://www.greghaskins.com/"
+    },
+  "repository" :
+    { "type" : "git"
+    , "url" : "https://github.com/greghaskins/jvm.js.git"
+    },
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-watch": "~0.5.3",
