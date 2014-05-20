@@ -1,7 +1,4 @@
-/* exported jvm */
-'use strict';
-var jvm = jvm || {};
-jvm.classParser = (function(){
+define(function(){
 
   function makeReader(buffer){
     var uint8View = new Uint8Array(buffer);
@@ -142,4 +139,4 @@ jvm.classParser = (function(){
 
     }
   };
-})();
+});

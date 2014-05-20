@@ -27,6 +27,7 @@ module.exports = function (grunt) {
         unused: true,
         eqnull: true,
         globals: {
+          "define": false,
           "it" : false,
           "xit" : false,
           "describe" : false,
@@ -41,14 +42,18 @@ module.exports = function (grunt) {
       gruntfile: {
         src: 'gruntfile.js'
       },
-      lib_test: {
-        src: ['lib/**/*.js', 'test/**/*.js']
+      src_test: {
+        src: ['src/*.js',
+              'src/**/*.js',
+              'test/*.js',
+              'test/**/*.js']
       }
     },
     karma: {
       unit: {
         configFile: 'karma.conf.js',
         singleRun: true,
+        background: true
       }
     },
     run_java: {
@@ -71,9 +76,9 @@ module.exports = function (grunt) {
         files: '<%= jshint.gruntfile.src %>',
         tasks: ['jshint:gruntfile']
       },
-      lib_test: {
-        files: ['<%= jshint.lib_test.src %>'],
-        tasks: ['jshint:lib_test', 'karma']
+      src_test: {
+        files: ['<%= jshint.src_test.src %>'],
+        tasks: ['jshint:src_test', 'karma']
       },
       test_java: {
         files: testJavaFiles,
